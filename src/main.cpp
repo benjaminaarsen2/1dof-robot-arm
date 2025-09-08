@@ -54,11 +54,9 @@ void setup()
   Serial.println(F("---------------------------------------------"));
 }
 
-void loop()
-{
+void loop(){
   // Check for new serial commands
-  if (Serial.available() > 0)
-  {
+  if (Serial.available() > 0){
     static char command[32]; // Buffer to hold incoming command
     int len = Serial.readBytesUntil('\n', command, sizeof(command) - 1);
     command[len] = '\0'; // Null-terminate the string
@@ -66,39 +64,32 @@ void loop()
   }
 
   // Update servo position if a timed move is in progress
-  if (isMoving)
-  {
+  if (isMoving){
     updateMovement();
   }
 }
 
-void parseCommand(char *command)
-{
+void parseCommand(char *command){
   if (command[0] == '\0')
     return; // Ignore empty commands
 
-  switch (command[0])
-  {
-  case 'P':
-  {
+  switch (command[0]){
+  case 'P':{
     // Move to position, e.g., P90
     int angle = atoi(command + 1);
     moveToPosition(angle);
     break;
   }
-  case 'T':
-  {
+  case 'T':{
     // Move to position in time, e.g., T90,1000
     char *comma = strchr(command, ',');
-    if (comma != NULL)
-    {
+    if (comma != NULL){
       *comma = '\0'; // Split the string
       int angle = atoi(command + 1);
       int time = atoi(comma + 1);
       startMoveToPositionInTime(angle, time);
     }
-    else
-    {
+    else{
       Serial.println(F("[ERROR] Invalid format. Use T<angle>,<time>"));
     }
     break;
@@ -110,8 +101,7 @@ void parseCommand(char *command)
   }
 }
 
-void moveToPosition(int angle)
-{
+void moveToPosition(int angle){
   isMoving = false;                 // Stop any ongoing timed movement
   angle = constrain(angle, 0, 180); // Ensure angle is within valid servo range
   myServo.write(angle);
@@ -119,11 +109,9 @@ void moveToPosition(int angle)
   Serial.println(angle);
 }
 
-void startMoveToPositionInTime(int targetAngle, int duration)
-{
+void startMoveToPositionInTime(int targetAngle, int duration){
   targetAngle = constrain(targetAngle, 0, 180);
-  if (duration <= 0)
-  {
+  if (duration <= 0){
     moveToPosition(targetAngle);
     return;
   }
@@ -143,19 +131,16 @@ void startMoveToPositionInTime(int targetAngle, int duration)
   Serial.println(F("ms"));
 }
 
-void updateMovement()
-{
+void updateMovement(){
   unsigned long elapsedTime = millis() - moveStartTime;
 
-  if (elapsedTime >= moveDuration)
-  {
+  if (elapsedTime >= moveDuration){
     // Movement finished
     isMoving = false;
     myServo.write(moveTargetAngle);
     Serial.println(F("[SUCCESS] Movement complete."));
   }
-  else
-  {
+  else{
     // Calculate intermediate position (linear interpolation)
     float progress = (float)elapsedTime / (float)moveDuration;
     int currentAngle = moveStartAngle + (progress * (moveTargetAngle - moveStartAngle));
