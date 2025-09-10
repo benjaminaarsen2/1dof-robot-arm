@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(serialtest)
+project(robot_arm_driver)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -21,12 +21,26 @@ find_package(Boost REQUIRED)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-add_executable(serialtest
-  src/SerialTest.cpp
+add_library(robot_arm_driver SHARED
   src/SerialDriver.cpp
-)
-target_include_directories(serialtest PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/src
+  src/RobotArmDriver.cpp
 )
 
-target_link_libraries(serialtest Threads::Threads Boost::boost)
+target_include_directories(robot_arm_driver PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+target_include_directories(robot_arm_driver PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(robot_arm_driver Threads::Threads Boost::boost)
+
+add_executable(serialtest
+  examples/SerialTest.cpp
+)
+
+target_include_directories(serialtest PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(serialtest robot_arm_driver)

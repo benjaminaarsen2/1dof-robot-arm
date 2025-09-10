@@ -2,7 +2,7 @@
 #include <string>
 #include <boost/asio.hpp>
 
-#include "SerialDriver.hpp"
+#include "robot_arm_driver/RobotArmDriver.hpp"
 
 //Arguments: port, baudrate, angle, time_ms (optional)
 #define NUMBER_OF_ARGUMENTS 4
@@ -19,14 +19,14 @@ int main(int argc, char const *argv[]){
 	int angle = std::stoi(argv[3]);
 	int time_ms = -1;
 
-	//Make a serial driver object
-	SerialDriver driver(port, baudrate);
+	//Make a servo controller object
+	RobotArmDriver controller(port, baudrate);
 
 	if(argc == 5){
 		time_ms = std::stoi(argv[4]);
-		status = driver.setTimedAngle(angle, time_ms);
+		status = controller.setTimedAngle(angle, time_ms);
 	}else{
-		status = driver.setAngle(angle);
+		status = controller.setAngle(angle);
 	}
 	std::cout << "Exited with code: " << status << '\n';
 	return status;
