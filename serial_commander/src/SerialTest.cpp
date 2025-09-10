@@ -1,44 +1,33 @@
 #include <iostream>
+#include <string>
 #include <boost/asio.hpp>
-#include <vector>
-#include <thread>
 
-int main() {
-	std::vector<std::string> strings;
-	strings.push_back("turn 25\n");
-	strings.push_back("turn 50\n");
-	strings.push_back("turn 100\n");
-	strings.push_back("turn 1\n");
+#include "SerialDriver.hpp"
 
-	strings.push_back("timed_turn 1000 100\n");
+//Arguments: port, baudrate, angle, time_ms (optional)
+#define NUMBER_OF_ARGUMENTS 4
 
-	
-
-    
-	boost::asio::io_service ioservice;
-	boost::asio::serial_port serial(ioservice, "/dev/ttyACM0");
-
-	serial.set_option(boost::asio::serial_port_base::baud_rate(9600));
-	serial.set_option(boost::asio::serial_port::flow_control(boost::asio::serial_port::flow_control::none));
-	serial.set_option(boost::asio::serial_port::parity(boost::asio::serial_port::parity::none));
-	serial.set_option(boost::asio::serial_port::stop_bits(boost::asio::serial_port::stop_bits::one));
-	serial.set_option(boost::asio::serial_port::character_size(boost::asio::serial_port::character_size(8)));
-
-	for (const std::string& s: strings){
-
-	    boost::asio::streambuf b;
-	    std::ostream os(&b);
-	    os << s << "\r";
-	    boost::asio::write(serial, b.data());
-		std::cout << "Sent: " << s << std::endl;
-	    os.flush();
-            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-
-     	}
-
-        if (serial.is_open()) {
-		serial.close();
+int main(int argc, char const *argv[]){
+	if(argc < NUMBER_OF_ARGUMENTS){
+		std::cerr << "Please provide a port, baudrate, angle (time optional)" << '\n';
+		return -1;
 	}
 
-	return 0;
+	int status = 0;
+	std::string port = argv[1];
+	int baudrate = std::stoi(argv[2]);
+	int angle = std::stoi(argv[3]);
+	int time_ms = -1;
+
+	//Make a serial driver object
+	SerialDriver driver(port, baudrate);
+
+	if(argc == 5){
+		time_ms = std::stoi(argv[4]);
+		status = driver.setTimedAngle(angle, time_ms);
+	}else{
+		status = driver.setAngle(angle);
+	}
+	std::cout << "Exited with code: " << status << '\n';
+	return status;
 }

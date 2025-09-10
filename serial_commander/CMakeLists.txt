@@ -22,8 +22,14 @@ find_package(Boost REQUIRED)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-add_executable(serialtest src/SerialTest.cpp)
+add_executable(serialtest
+  src/SerialTest.cpp
+  src/SerialDriver.cpp
+)
 ament_target_dependencies(serialtest Boost)
+target_include_directories(serialtest PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
 
 target_link_libraries(serialtest Threads::Threads)
 
