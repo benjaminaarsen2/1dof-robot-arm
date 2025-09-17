@@ -16,7 +16,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 # find dependencies
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS thread)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
@@ -35,7 +35,7 @@ target_include_directories(robot_arm_driver
 )
 
 # add boost and threads libraries to the robot arm driver
-target_link_libraries(robot_arm_driver PUBLIC Threads::Threads Boost::boost)
+target_link_libraries(robot_arm_driver PUBLIC Threads::Threads Boost::boost Boost::thread)
 
 # installation rules
 include(GNUInstallDirs)
